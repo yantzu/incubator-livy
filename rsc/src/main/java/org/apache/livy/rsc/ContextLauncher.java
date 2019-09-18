@@ -196,6 +196,8 @@ class ContextLauncher {
     merge(conf, SPARK_ARCHIVES_KEY, conf.get(RSCConf.Entry.SPARKR_PACKAGE), ",");
     merge(conf, "spark.submit.pyFiles", conf.get(RSCConf.Entry.PYSPARK_ARCHIVES), ",");
 
+    merge(conf, "spark.sql.extensions", conf.get(SQL_EXTENSIONS), ",");
+
     // Disable multiple attempts since the RPC server doesn't yet support multiple
     // connections for the same registered app.
     conf.set("spark.yarn.maxAppAttempts", "1");
