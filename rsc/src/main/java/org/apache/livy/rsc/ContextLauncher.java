@@ -39,9 +39,12 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.attribute.PosixFilePermission.*;
 
+import com.google.common.collect.Lists;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Promise;
 import org.apache.spark.launcher.SparkLauncher;
@@ -68,6 +71,7 @@ class ContextLauncher {
   private static final String SPARK_DEPLOY_MODE = "spark.submit.deployMode";
   private static final String SPARK_JARS_KEY = "spark.jars";
   private static final String SPARK_ARCHIVES_KEY = "spark.yarn.dist.archives";
+  private static final String SPARK_SQL_EXTENSION_KEY = "spark.sql.extensions";
   private static final String SPARK_HOME_ENV = "SPARK_HOME";
 
   static DriverProcessInfo create(RSCClientFactory factory, RSCConf conf)
@@ -196,7 +200,11 @@ class ContextLauncher {
     merge(conf, SPARK_ARCHIVES_KEY, conf.get(RSCConf.Entry.SPARKR_PACKAGE), ",");
     merge(conf, "spark.submit.pyFiles", conf.get(RSCConf.Entry.PYSPARK_ARCHIVES), ",");
 
-    merge(conf, "spark.sql.extensions", conf.get(SQL_EXTENSIONS), ",");
+    //use the default value configured in Spark if not set in session nor livy-clint.conf
+    if (conf.get(SQL_EXTENSIONS) != null || conf.get(SPARK_SQL_EXTENSION_KEY) != null) {
+      merge(conf, SPARK_SQL_EXTENSION_KEY, conf.get(SQL_EXTENSIONS), ",");
+      removeDuplicates(conf, SPARK_SQL_EXTENSION_KEY, ",");
+    }
 
     // Disable multiple attempts since the RPC server doesn't yet support multiple
     // connections for the same registered app.
@@ -256,6 +264,15 @@ class ContextLauncher {
   private static void merge(RSCConf conf, String key, String livyConf, String sep) {
     String confValue = Utils.join(Arrays.asList(livyConf, conf.get(key)), sep);
     conf.set(key, confValue);
+  }
+
+  private static void removeDuplicates(RSCConf conf, String key, String sep) {
+    String confValue = conf.get(key);
+    if (confValue != null && !confValue.isEmpty()) {
+      List<String> deDuplicatedConfValues =
+          Lists.newArrayList(confValue.split(sep)).stream().distinct().collect(Collectors.toList());
+      conf.set(key, Utils.join(deDuplicatedConfValues, sep));
+    }
   }
 
   /**
