@@ -50,6 +50,7 @@ public class RSCConf extends ClientConf<RSCConf> {
     PYSPARK_ARCHIVES("pyspark.archives", null),
 
     SQL_EXTENSIONS("sql.extensions", null),
+    SPARK_JARS("spark.jars", null),
 
     // Address for the RSC driver to connect back with it's connection info.
     LAUNCHER_ADDRESS("launcher.address", null),

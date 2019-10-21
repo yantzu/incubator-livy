@@ -196,6 +196,7 @@ class ContextLauncher {
       livyJars = Utils.join(jars, ",");
     }
     merge(conf, SPARK_JARS_KEY, livyJars, ",");
+    merge(conf, SPARK_JARS_KEY, conf.get(SPARK_JARS), ",");
 
     merge(conf, SPARK_ARCHIVES_KEY, conf.get(RSCConf.Entry.SPARKR_PACKAGE), ",");
     merge(conf, "spark.submit.pyFiles", conf.get(RSCConf.Entry.PYSPARK_ARCHIVES), ",");

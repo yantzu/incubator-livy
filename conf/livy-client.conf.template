@@ -73,6 +73,9 @@
 # Common-separated spark sql extension classes,
 # will be merged with spark.sql.extensions set in Livy Session
 # livy.rsc.sql.extensions =
+# Common-separated spark jars,
+# will be merged with spark.jars set in Livy Session
+# livy.rsc.spark.jars =
 
 # Address for the RSC driver to connect back with it's connection info.
 # livy.rsc.launcher.address =
